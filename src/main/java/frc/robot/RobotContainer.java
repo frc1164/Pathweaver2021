@@ -49,6 +49,11 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
+  //Default Commands
+  private final navxVals m_navVals;
+
+
+
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
@@ -56,6 +61,10 @@ public class RobotContainer {
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    //Set Default commad
+    m_navVals = new navxVals(m_robotDrive);
+    m_robotDrive.setDefaultCommand(m_navVals);
 
     
     // Configure the button bindings
@@ -67,8 +76,8 @@ public class RobotContainer {
         // A split-stick arcade command, with forward/backward controlled by the left
         // hand, and turning controlled by the right.
         new RunCommand(() -> m_robotDrive
-            .arcadeDrive(m_driverController.getY(GenericHID.Hand.kLeft),
-                         m_driverController.getX(GenericHID.Hand.kRight)), m_robotDrive));
+            .arcadeDrive(m_driverController.getRawAxis(1),
+                         m_driverController.getRawAxis(4)), m_robotDrive));
 
   }
 
@@ -80,7 +89,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Drive at half speed when the right bumper is held
-    new JoystickButton(m_driverController, Button.kBumperRight.value)
+    new JoystickButton(m_driverController, 6)
         .whenPressed(() -> m_robotDrive.setMaxOutput(0.5))
         .whenReleased(() -> m_robotDrive.setMaxOutput(1));
 
@@ -94,7 +103,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-    // Create a voltage constraint to ensure we don't accelerate too fast
+    /*// Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
             new SimpleMotorFeedforward(DriveConstants.ksVolts,
@@ -110,11 +119,11 @@ public class RobotContainer {
             // Add kinematics to ensure max speed is actually obeyed
             .setKinematics(DriveConstants.kDriveKinematics)
             // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);
+            .addConstraint(autoVoltageConstraint);*/
 
-            //importing a pathweaver json
+      //importing a pathweaver json
 
-      String trajectoryJSON = "paths/output/LeftTurn.wpilib.json";
+      String trajectoryJSON = "paths/output/ShortLine.wpilib.json";
       Trajectory pathWeaverTrajectory = new Trajectory();
       try {
             Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
@@ -153,9 +162,11 @@ public class RobotContainer {
         // RamseteCommand passes volts to the callback
         m_robotDrive::tankDriveVolts,
         m_robotDrive
+
+
     );
 
     // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
+    return m_navVals.andThen(ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0)));
   }
 }
