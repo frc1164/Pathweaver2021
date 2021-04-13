@@ -24,10 +24,12 @@ public final class Constants {
     public static final int kRightMotor1Port = 2;
     public static final int kRightMotor2Port = 3;
 
+    public static final int intakeMotor = 0;
+
     public static final int[] kLeftEncoderPorts = new int[]{0, 1};
     public static final int[] kRightEncoderPorts = new int[]{3, 4};
-    public static final boolean kLeftEncoderReversed = true;
-    public static final boolean kRightEncoderReversed = false;
+    public static final boolean kLeftEncoderReversed = false;
+    public static final boolean kRightEncoderReversed = true;
 
     public static final double kTrackwidthMeters = 0.73065;
     public static final DifferentialDriveKinematics kDriveKinematics =
@@ -50,7 +52,7 @@ public final class Constants {
     public static final double kvVoltSecondsPerMeter = 4.7076;
     public static final double kaVoltSecondsSquaredPerMeter = 0.48473;
 
-    // Example value only - as above, this must be tuned for your drive!
+    // Example value only - as above, this must be tuned for your drive! (1.66)
     public static final double kPDriveVel = 1.66;
   }
 

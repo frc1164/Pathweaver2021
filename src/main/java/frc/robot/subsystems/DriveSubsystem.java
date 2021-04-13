@@ -22,11 +22,22 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.SerialPort;
-
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.controller.PIDController;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import java.io.IOException;
+
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.AutoConstants;
 
 public class DriveSubsystem extends SubsystemBase {
   // The motors on the left side of the drive.
@@ -60,6 +71,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
+
+  //Motor for intake
+  private final WPI_VictorSPX intakeMotor = new WPI_VictorSPX(DriveConstants.intakeMotor);
 
   /**
    * Creates a new DriveSubsystem.
@@ -205,4 +219,60 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("encoder right", m_rightEncoder.getDistance());
     SmartDashboard.putNumber("encoder right", m_leftEncoder.getDistance());
   }
+
+  public void startIntake() {
+    intakeMotor.set(0.5);
+  }
+
+  /**
+   * Creates a command to follow a Trajectory on the drivetrain.
+   * @param trajectory trajectory to follow
+   * @return command that will run the trajectory
+   */
+  /*public Command createCommandForTrajectory(Trajectory trajectory, Boolean initPose) {
+    velocitysetup();
+    RamseteCommand ramseteCommand =  new RamseteCommand(
+            trajectory,
+            this::getCurrentPose,
+            new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+            new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                   DriveConstants.kvVoltSecondsPerMeter,
+                                   DriveConstants.kaVoltSecondsSquaredPerMeter),
+            DriveConstants.kDriveKinematics,
+            m_robotDrive::getWheelSpeeds,
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            this::tankDriveVolts,
+            this);
+    if (initPose) {
+      var reset =  new InstantCommand(() -> this.resetOdometry(trajectory.getInitialPose()));
+      return reset.andThen(ramseteCommand.andThen(() -> stopmotors()));
+    }
+    else {
+      return ramseteCommand.andThen(() -> stopmotors());
+    }
+  }
+
+  public Trajectory loadTrajectoryFromFile(String filename) {
+    try {
+      return loadTrajectory(filename);
+    } catch (IOException e) {
+      DriverStation.reportError("Failed to load auto trajectory: " + filename, false);
+      return new Trajectory();
+    }
+  }
+
+  public Trajectory generateTrajectoryFromFile(String filename) {
+      var config = new TrajectoryConfig(1, 3);
+      return generateTrajectory(filename, config);
+  }
+
+  public void stopmotors() {
+    m_leftMotors.set(0);
+    m_rightMotors.set(0);
+  }
+
+  public void velocitysetup() {
+    resetEncoders();
+  }*/
 }

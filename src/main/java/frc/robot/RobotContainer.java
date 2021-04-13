@@ -28,12 +28,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Commands.navxVals;
+import frc.robot.Commands.IntakeStart;
 
 import static edu.wpi.first.wpilibj.XboxController.Button;
 import java.io.IOException;
@@ -45,17 +48,21 @@ import java.nio.file.Path;
  * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
  * (including subsystems, commands, and button mappings) should be declared here.
  */
+
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   //Default Commands
-  private final navxVals m_navVals;
+  //private final navxVals m_navVals;
+  private final IntakeStart m_IntakeStart;
 
 
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+
+
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -63,8 +70,9 @@ public class RobotContainer {
   public RobotContainer() {
 
     //Set Default commad
-    m_navVals = new navxVals(m_robotDrive);
-    m_robotDrive.setDefaultCommand(m_navVals);
+    //m_navVals = new navxVals(m_robotDrive);
+    //m_robotDrive.setDefaultCommand(m_navVals);
+    m_IntakeStart = new IntakeStart(m_robotDrive);
 
     
     // Configure the button bindings
@@ -76,8 +84,8 @@ public class RobotContainer {
         // A split-stick arcade command, with forward/backward controlled by the left
         // hand, and turning controlled by the right.
         new RunCommand(() -> m_robotDrive
-            .arcadeDrive(m_driverController.getRawAxis(1),
-                         m_driverController.getRawAxis(4)), m_robotDrive));
+            .arcadeDrive(m_driverController.getRawAxis(2),
+                         m_driverController.getRawAxis(1)), m_robotDrive));
 
   }
 
@@ -103,7 +111,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-    /*// Create a voltage constraint to ensure we don't accelerate too fast
+    // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
             new SimpleMotorFeedforward(DriveConstants.ksVolts,
@@ -119,19 +127,49 @@ public class RobotContainer {
             // Add kinematics to ensure max speed is actually obeyed
             .setKinematics(DriveConstants.kDriveKinematics)
             // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);*/
+            .addConstraint(autoVoltageConstraint);
 
       //importing a pathweaver json
 
-      String trajectoryJSON = "paths/output/ShortLine.wpilib.json";
-      Trajectory pathWeaverTrajectory = new Trajectory();
+      String trajectoryJSON1 = "paths/output/BallCollectionB.wpilib.json";
+      Trajectory pathWeaverTrajectory1 = new Trajectory();
       try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-            pathWeaverTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON1);
+            pathWeaverTrajectory1 = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
             System.out.println("TRY SUCCEEDED");
           } catch (IOException ex) {
-            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON1, ex.getStackTrace());
           }
+
+      /*String trajectoryJSON2 = "paths/output/Bounce2.wpilib.json";
+      Trajectory pathWeaverTrajectory2 = new Trajectory();
+      try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON2);
+            pathWeaverTrajectory2 = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            System.out.println("TRY SUCCEEDED");
+          } catch (IOException ex) {
+            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON2, ex.getStackTrace());
+          }
+
+      String trajectoryJSON3 = "paths/output/Bounce3.wpilib.json";
+      Trajectory pathWeaverTrajectory3 = new Trajectory();
+      try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON3);
+            pathWeaverTrajectory3 = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            System.out.println("TRY SUCCEEDED");
+          } catch (IOException ex) {
+            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON3, ex.getStackTrace());
+          }
+
+      String trajectoryJSON4 = "paths/output/Bounce4.wpilib.json";
+      Trajectory pathWeaverTrajectory4 = new Trajectory();
+      try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON4);
+            pathWeaverTrajectory4 = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            System.out.println("TRY SUCCEEDED");
+          } catch (IOException ex) {
+            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON4, ex.getStackTrace());
+          }*/
 
     // An example trajectory to follow.  All units in meters.
     /*Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
@@ -148,8 +186,8 @@ public class RobotContainer {
         config
     );*/
 
-    RamseteCommand ramseteCommand = new RamseteCommand(
-        pathWeaverTrajectory,
+    RamseteCommand ramseteCommand1 = new RamseteCommand(
+        pathWeaverTrajectory1,
         m_robotDrive::getPose,
         new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
         new SimpleMotorFeedforward(DriveConstants.ksVolts,
@@ -166,7 +204,63 @@ public class RobotContainer {
 
     );
 
+    /*RamseteCommand ramseteCommand2 = new RamseteCommand(
+        pathWeaverTrajectory2,
+        m_robotDrive::getPose,
+        new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                   DriveConstants.kvVoltSecondsPerMeter,
+                                   DriveConstants.kaVoltSecondsSquaredPerMeter),
+        DriveConstants.kDriveKinematics,
+        m_robotDrive::getWheelSpeeds,
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        m_robotDrive::tankDriveVolts,
+        m_robotDrive
+
+
+    );
+
+    RamseteCommand ramseteCommand3 = new RamseteCommand(
+        pathWeaverTrajectory3,
+        m_robotDrive::getPose,
+        new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                   DriveConstants.kvVoltSecondsPerMeter,
+                                   DriveConstants.kaVoltSecondsSquaredPerMeter),
+        DriveConstants.kDriveKinematics,
+        m_robotDrive::getWheelSpeeds,
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        m_robotDrive::tankDriveVolts,
+        m_robotDrive
+
+
+    );
+
+    RamseteCommand ramseteCommand4 = new RamseteCommand(
+        pathWeaverTrajectory4,
+        m_robotDrive::getPose,
+        new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                   DriveConstants.kvVoltSecondsPerMeter,
+                                   DriveConstants.kaVoltSecondsSquaredPerMeter),
+        DriveConstants.kDriveKinematics,
+        m_robotDrive::getWheelSpeeds,
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        m_robotDrive::tankDriveVolts,
+        m_robotDrive
+
+
+    );*/
+    //reset odometry
+    m_robotDrive.resetOdometry(pathWeaverTrajectory1.getInitialPose());
+
     // Run path following command, then stop at the end.
-    return m_navVals.andThen(ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0)));
+    return ramseteCommand1.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
   }
 }
